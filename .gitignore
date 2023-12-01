@@ -1,3 +1,7 @@
+#AOC
+input*.txt
+example.txt
+
 # Logs
 logs
 *.log
