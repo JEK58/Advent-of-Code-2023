@@ -29,11 +29,11 @@ lines.forEach((line, i) => {
   power += maxColors.red * maxColors.green * maxColors.blue;
 });
 
-console.log(sum);
-console.log(power);
+console.log(sum); //2207
+console.log(power); //62241
 
 function detectColorAndAmount(str: string) {
-  let color: "red" | "green" | "blue" = "red";
+  let color: (typeof colors)[number] = "red";
   let amount = 0;
   colors.forEach((_color) => {
     if (str.includes(_color)) {
