@@ -7,14 +7,14 @@ let power = 0;
 let sum = 0;
 
 lines.forEach((line, i) => {
-  const sets = line.split(":")[1].split(";");
   const maxColors = { red: 0, green: 0, blue: 0 };
+  const sets = line.split(":")[1].split(";");
   const subsets = sets.map((set) => set.split(","));
 
   subsets.forEach((subset) => {
     subset.forEach((cube) => {
       const { color, amount } = detectColorAndAmount(cube);
-      if (amount > maxColors[color]) maxColors[color] = amount;
+      maxColors[color] = Math.max(amount, maxColors[color]);
     });
   });
 
