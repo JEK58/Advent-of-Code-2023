@@ -14,7 +14,7 @@ const sum = lines
       // For each winning num one sequential card is added to the pile
       for (let j = 2; j <= Math.min(common + 1, lines.length + 1); j++) {
         const curr = pile.get(i + j);
-        if (curr) pile.set(i + j, curr + 1 * copies);
+        if (curr) pile.set(i + j, curr + copies);
       }
 
       return 2 ** (common - 1); // 2^(n-1)
