@@ -7,7 +7,7 @@ const replaceChar = ["U", "0", "W", "X", "Y"].reverse();
 
 const handsWithRank = hands.map((hand) => {
   const rank = getHandRanking(hand);
-  const replaced = hand[0]
+  const sortable = hand[0]
     .split("")
     .map((char) => {
       const index = strength.indexOf(char);
@@ -15,7 +15,7 @@ const handsWithRank = hands.map((hand) => {
     })
     .join("");
 
-  return [`${rank}:${replaced}`, hand[1], hand[0]];
+  return [`${rank}:${sortable}`, hand[1], hand[0]];
 });
 
 const sorted = handsWithRank.sort((a, b) => ("" + a[0]).localeCompare(b[0]));
