@@ -18,8 +18,6 @@ let position = "AAA";
 let step = 0;
 
 while (position !== "ZZZ") {
-  //   console.log("Current position", position);
-
   const instruction = instructions?.at(step % instructions.length);
   if (!instruction) throw new Error("No instruction");
   const newPosition = map
@@ -30,4 +28,4 @@ while (position !== "ZZZ") {
   step++;
 }
 
-console.log("🚀 ~ step:", step);
+console.log("🚀 ~ step:", step); // 18727
