@@ -48,8 +48,28 @@ map.forEach((row, y) => {
   });
 });
 
+// Part 2 with shoelace formula and Pick's theorem
+const vertices = Array.from(connections).map((v) => v.split(",").map(Number));
+const numVertices = vertices.length;
+let sum1 = 0;
+let sum2 = 0;
+
+for (let i = 0; i < numVertices - 1; i++) {
+  sum1 = sum1 + vertices[i][0] * vertices[i + 1][1];
+  sum2 = sum2 + vertices[i][1] * vertices[i + 1][0];
+}
+// Add the last vertex with the first one
+sum1 = sum1 + vertices[numVertices - 1][0] * vertices[0][1];
+sum2 = sum2 + vertices[0][0] * vertices[numVertices - 1][1];
+
+const area = Math.abs(sum1 - sum2) / 2;
+
+// Pick's theroem: A = i + b / 2 - 1 => i = A - b / 2 + 1
+const count = area - connections.size / 2 + 1;
+
 console.log("🚀 ~ part 1:", connections.size / 2); // 6890
 console.log("🚀 ~ part 2:", insideCount); // 453
+console.log("🚀 ~ part 2 (shoelace):", count); // 453
 
 function determinStartTile(positions: Position[]) {
   const [a, b] = [
