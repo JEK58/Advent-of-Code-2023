@@ -41,29 +41,27 @@ console.log("🚀 ~ part 2:", solve(1000000)); // 447073334102
 
 function galaxyDistance(pos1: Position, pos2: Position, expFactor: number) {
   // Calculate the number of expanding universe parts between two galaxies
-  let horCrossings = 0;
-  let vertCrossings = 0;
+  let crossings = 0;
 
   horizontallyExpanding.forEach((x) => {
     if (!x) return;
     const crossingExpansion =
       x >= Math.min(pos1[0], pos2[0]) && x <= Math.max(pos1[0], pos2[0]);
-    if (crossingExpansion) horCrossings++;
+    if (crossingExpansion) crossings++;
   });
 
   verticallyExpanding.forEach((y) => {
     if (!y) return;
     const crossingExpansion =
       y >= Math.min(pos1[1], pos2[1]) && y <= Math.max(pos1[1], pos2[1]);
-    if (crossingExpansion) vertCrossings++;
+    if (crossingExpansion) crossings++;
   });
 
-  // Calculate distance
+  // Calculate distance (manhattan + expanding universe parts)
   const dist =
     Math.abs(pos1[0] - pos2[0]) +
-    horCrossings * (expFactor - 1) +
     Math.abs(pos1[1] - pos2[1]) +
-    vertCrossings * (expFactor - 1);
+    crossings * (expFactor - 1);
 
   return dist;
 }
