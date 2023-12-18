@@ -64,7 +64,7 @@ sum2 = sum2 + vertices[0][0] * vertices[numVertices - 1][1];
 
 const area = Math.abs(sum1 - sum2) / 2;
 
-// Pick's theroem: A = i + b / 2 - 1 => i = A - b / 2 + 1
+// Pick's theorem: A = i + b / 2 - 1 => i = A - b / 2 + 1
 const count = area - connections.size / 2 + 1;
 
 console.log("🚀 ~ part 1:", connections.size / 2); // 6890
