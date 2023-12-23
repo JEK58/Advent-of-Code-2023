@@ -70,28 +70,22 @@ for (const node of nodes) {
 }
 
 // DFS for all nodes
-function solve(
-  node: Position,
-  steps: number,
-  _visited: Set<string> = new Set()
-): number[] | undefined {
-  const visited = new Set([..._visited, node.join(",")]);
-
+let part2 = 0;
+const visited = new Set<string>();
+function solve(node: Position, steps: number) {
+  visited.add(node.join(","));
   const options = graph.get(node.join(","));
   if (!options) return;
-  return options
-    .flatMap(([r, c, s]) => {
-      if (r == end[0] && c == end[1]) return steps + s; // Found end
-      if (visited.has([r, c].join(","))) return;
+  options.forEach(([r, c, s]) => {
+    if (r == end[0] && c == end[1]) return (part2 = Math.max(part2, steps + s)); // Found end
+    if (visited.has([r, c].join(","))) return;
 
-      return solve([r, c], steps + s, visited);
-    })
-    .filter(Number) as number[];
+    solve([r, c], steps + s);
+  });
+  visited.delete(node.join(","));
 }
 
-const pathLenghts = solve(start, 0);
-let max = 0;
-pathLenghts?.forEach((l) => (max = Math.max(max, l)));
+solve(start, 0);
 
 // TODO: Messy and slow: Optimize to improve performance
-console.log("🚀 ~ part 2:", max); // 6734
+console.log("🚀 ~ part 2:", part2); // 6734
