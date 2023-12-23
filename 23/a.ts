@@ -15,16 +15,9 @@ const directions: Direction[] = [
 ];
 
 const visited = new Set<string>();
-const path = new Map<string, number>();
 
 function navigate(pos: Position, _visited: Set<string>): number[] {
-  console.log(path.get(pos.join(",")));
-
-  // if (path.has(pos.join(",")) && path.get(pos.join(",")) > _visited.size)
-  //   return [];
   const visited = new Set([..._visited, pos.join(",")]);
-
-  path.set(pos.join(","), visited.size);
   const options = getOptions(pos);
 
   return options
@@ -45,16 +38,14 @@ function getOptions(pos: Position) {
       const [dr, dc, sl] = dir;
       const nr = r + dr;
       const nc = c + dc;
+      // Filter out of bounds
       if (nc < 0 || nr < 0 || nr >= map.length || nc >= map[0].length) return;
-
-      // if (map[nr][nc] === "." || map[nr][nc] === sl) {
-      //   return [nr, nc];
-      // }
-      if (map[nr][nc] != "#") return [nr, nc];
+      if (map[nr][nc] === "." || map[nr][nc] === sl) return [nr, nc];
     })
     .filter(Boolean) as Position[];
 }
 
 const steps = navigate(start, visited);
 const part1 = Math.max(...steps);
+// TODO: Optimize to improve performance
 console.log("🚀 ~ part1:", part1); // 2278
