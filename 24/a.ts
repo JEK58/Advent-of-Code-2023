@@ -1,25 +1,24 @@
 import input from "./input.txt";
+import { findLineIntersection } from "../utils/utils";
 
 const hailstones = input
   .split("\n")
-  .map((line) => line.replaceAll("@", ",").split(",").map(Number));
-
-type Line = [number, number, number, number];
+  .map((line) => line.replaceAll("@", ",").split(",").map(Number)) as Hail[];
 
 let part1 = 0;
-while (hailstones.length) {
-  const a = hailstones.shift();
+const hailstonesCopy = [...hailstones];
+while (hailstonesCopy.length) {
+  const a = hailstonesCopy.shift();
   if (!a) continue;
-  for (const b of hailstones) {
+  for (const b of hailstonesCopy) {
     if (a.join(",") === b.join(",")) continue;
     const line1 = [a[0], a[1], a[0] + a[3], a[1] + a[4]] as Line;
     const line2 = [b[0], b[1], b[0] + b[3], b[1] + b[4]] as Line;
 
     const res = findLineIntersection(line1, line2);
+
     if (!res) continue;
 
-    // const min = 7;
-    // const max = 27;
     const min = 200000000000000;
     const max = 400000000000000;
     // Skip intersections outside the search grid
@@ -39,30 +38,87 @@ while (hailstones.length) {
   }
 }
 
-console.log("🚀 ~ part 1:", part1); // 20434
+// Part 2
+type Hail = [number, number, number, number, number, number];
+type Line = [number, number, number, number];
 
-// http://paulbourke.net/geometry/pointlineplane/
-function findLineIntersection(line1: Line, line2: Line, segmentsOnly = false) {
-  const [x1, y1, x2, y2] = line1;
-  const [x3, y3, x4, y4] = line2;
+const MAX_V = 500;
 
-  // Filter line with length 0
-  if ((x1 === x2 && y1 === y2) || (x3 === x4 && y3 === y4)) return false;
+// Find hail pairs that have the same velocity
+const hailWithCommonVelocity: {
+  x: [Hail, Hail][];
+  y: [Hail, Hail][];
+  z: [Hail, Hail][];
+} = { x: [], y: [], z: [] };
 
-  const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-
-  // Filter parallel lines
-  // if (denominator === 0) console.log("Parallel line detected", line1, line2);
-  if (denominator === 0) return false;
-
-  const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
-  const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
-
-  // Optionally only find intersections inside the line segments
-  if (segmentsOnly && (ua < 0 || ua > 1 || ub < 0 || ub > 1)) return false;
-
-  const x = x1 + ua * (x2 - x1);
-  const y = y1 + ua * (y2 - y1);
-
-  return { x, y };
+for (let i = 0; i < hailstones.length; i++) {
+  for (let j = i + 1; j < hailstones.length; j++) {
+    const a = hailstones[i];
+    const b = hailstones[j];
+    if (a[3] === b[3]) hailWithCommonVelocity.x.push([a, b]);
+    if (a[4] === b[4]) hailWithCommonVelocity.y.push([a, b]);
+    if (a[5] === b[5]) hailWithCommonVelocity.z.push([a, b]);
+  }
 }
+
+// Reduce the possible velocities to the ones that are common to all pairs
+// There must be exactly one result for each axis
+const axes = ["x", "y", "z"] as const;
+const velocities = axes.flatMap((axis) => {
+  const vel: number[] = [];
+  for (const h of hailWithCommonVelocity[axis]) {
+    const res = getVelocities(h, axis);
+    if (vel.length === 0) vel.push(...res);
+    else {
+      const temp = [...vel];
+      vel.length = 0;
+      for (const t of temp) {
+        if (res.includes(t)) vel.push(t);
+      }
+    }
+  }
+  return vel;
+});
+
+// Given that the rock would be stationary the velocities of the hailstones are corrected by the rock velocity
+// Relative velocity between rock and hail would be the same
+function getVelocities(hailstones: number[][], axis: "x" | "y" | "z") {
+  let d = 0;
+  if (axis === "y") d = 1;
+  if (axis === "z") d = 2;
+
+  const [hailA, hailB] = hailstones;
+  const possibleVelocities = new Set<number>();
+  for (let v = -MAX_V; v < MAX_V; v++) {
+    if (checkRockV(v, hailA[3 + d], hailA[0 + d] - hailB[0 + d]))
+      possibleVelocities.add(v);
+  }
+  return [...possibleVelocities];
+}
+
+function checkRockV(rv: number, hv: number, dist: number) {
+  return dist % (rv - hv) === 0;
+}
+
+const [rvx, rvy, rvz] = velocities;
+
+if (!rvx || !rvy || !rvz) throw new Error("No velocity found for some axes");
+
+// From the velocity of the rock we can calculate the rock starting position
+// It's the same principle as in part 1
+const [xa, ya, za, vxa, vya, vza] = hailstones[0];
+const [xb, yb, zb, vxb, vyb, vzb] = hailstones[1];
+const line1 = [xa, ya, xa + vxa - rvx, ya + vya - rvy] as Line;
+const line2 = [xb, yb, xb + vxb - rvx, yb + vyb - rvy] as Line;
+
+const xy = findLineIntersection(line1, line2);
+
+const line3 = [ya, za, ya + vya - rvy, za + vza - rvz] as Line;
+const line4 = [yb, zb, yb + vyb - rvy, zb + vzb - rvz] as Line;
+
+const yz = findLineIntersection(line3, line4);
+
+if (!xy || !yz) throw new Error("No intersection found");
+
+console.log("🚀 ~ part 1:", part1); // 20434
+console.log("🚀 ~ Part 2:", xy.x + xy.y + yz.y); // 1025127405449117
